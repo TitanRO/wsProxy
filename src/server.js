@@ -74,6 +74,8 @@ function onRequestConnect(info, callback) {
  */
 function onConnection(ws) {
 
+	ws.upgradeReq = req;
+
 	modules.method.connect(ws, function(res) {
 		//All modules have processed the connection, lets start the proxy
 		new Proxy(ws);
