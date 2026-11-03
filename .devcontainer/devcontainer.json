@@ -19,7 +19,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postStartCommand": "doctl auth init --access-token $DO_TOKEN && doctl kubernetes cluster kubeconfig save e15266d8-76a6-4aa1-9529-5df961097936",
+	"postStartCommand": "doctl auth init --access-token $DO_TOKEN && doctl kubernetes cluster kubeconfig save titanro-nyc1-vpcnative",
 
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "devuser",
