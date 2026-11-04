@@ -80,7 +80,7 @@ function onConnection(ws, req, config) {
 
 	modules.method.connect(ws, function(res) {
 		//All modules have processed the connection, lets start the proxy
-		new Proxy(ws, { proxyProtocol: config.proxyProtocol, connectHost: config.connectHost });
+		new Proxy(ws, { proxyProtocol: config.proxyProtocol, connectHost: config.connectHost, connectMap: config.connectMap });
 	})
 
 }
