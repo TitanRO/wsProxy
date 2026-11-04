@@ -4,6 +4,7 @@
 var net     = require('net');
 var mes     = require('./message');
 var proxyprotocol = require('./proxyprotocol');
+var connectmap = require('./connectmap');
 
 /**
  * Constructor
@@ -26,16 +27,13 @@ var Proxy = function Constructor(ws, options) {
 	this._ws.on('close', this.close.bind(this) );
 	this._ws.on('error', this.close.bind(this) );
 
-	// Initialize proxy
-	var args = this._to.split(':');
-
-	// Connect to server (--connect-host: dial that host instead, on the requested port; the allow-list still
-	// checks the requested host:port)
-	var host = options.connectHost || args[0];
+	// Connect to server: the requested host:port, or where --connect-map / --connect-host send it (the allow-list
+	// has already checked the requested host:port)
+	var target = connectmap.resolve(this._to, options);
 	mes.info("Requested connection from '%s'%s to '%s'%s [ACCEPTED].", this._from,
 		this._client ? " (client " + this._client + ")" : "", this._to,
-		options.connectHost ? " via " + options.connectHost : "");
-	this._tcp = net.connect( args[1], host );
+		target.via ? " via " + target.via : "");
+	this._tcp = net.connect( target.port, target.host );
 
 	// Disable nagle algorithm
 	this._tcp.setTimeout(0)

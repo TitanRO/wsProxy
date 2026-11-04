@@ -5,6 +5,7 @@ var args    = require('optimist').argv;
 var main    = require('./src/main');
 var modules = require('./src/modules');
 var allowed = require('./allowed');
+var connectmap = require('./src/connectmap');
 
 
 // Arguments
@@ -18,6 +19,7 @@ if(args.h || args.help) {
 	console.log('-k, --key path to ssl key file. [Default: ./default.key]');
 	console.log('-c, --cert path to ssl cert file. [Default: ./default.crt]');
 	console.log('--connect-host dial this host instead of the requested one (same port); the allow-list still checks the requested host:port.');
+	console.log('--connect-map dial a different host:port for specific requested ones (comma separated requested-host:port=dial-host:port); takes precedence over --connect-host.');
 	console.log('--proxy-protocol start each TCP connection with a PROXY v2 header carrying the client address (last X-Forwarded-For entry, else the peer).');
 	process.exit(0);
 }
@@ -49,4 +51,5 @@ main({
 	cert: args.cert || args.c || "./default.crt",
 	proxyProtocol: !!(args['proxy-protocol'] || process.env.WSPROXY_PROXY_PROTOCOL === '1'),
 	connectHost: (typeof args['connect-host'] === 'string' && args['connect-host'].trim()) || process.env.WSPROXY_CONNECT_HOST || null,
+	connectMap: connectmap.parse(typeof args['connect-map'] === 'string' ? args['connect-map'] : process.env.WSPROXY_CONNECT_MAP),
 });
