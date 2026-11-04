@@ -21,7 +21,7 @@ spec:
     - {name: git-revision, value: "{{ revision }}"}
     - {name: context, value: .}
     - {name: dockerfile, value: Dockerfile}
-    - {name: image, value: registry.digitalocean.com/titanro-docr/wsproxy}
+    - {name: image, value: registry.digitalocean.com/titanro-nyc/wsproxy}
     - {name: image-name, value: wsproxy-image}
     - {name: sysops-path, value: "argo/prod-season/robrowser argo/test-season/robrowser"}
   taskRunTemplate:
