@@ -11,7 +11,8 @@ COPY package*.json ./
 COPY allowed.js ./
 COPY index.js ./
 
-RUN npm install --production
+# Install exactly the versions in package-lock.json (fails if it doesn't match package.json).
+RUN npm ci --omit=dev
 
 COPY ./src ./src
 
