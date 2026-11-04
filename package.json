@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "optimist": "^0.5.2",
-    "ws": "^8.13.0"
+    "ws": "^8.22.0"
   },
   "devDependencies": {
     "mocha": "^10.2.0"
