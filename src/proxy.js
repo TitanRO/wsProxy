@@ -29,10 +29,13 @@ var Proxy = function Constructor(ws, options) {
 	// Initialize proxy
 	var args = this._to.split(':');
 
-	// Connect to server
-	mes.info("Requested connection from '%s'%s to '%s' [ACCEPTED].", this._from,
-		this._client ? " (client " + this._client + ")" : "", this._to);
-	this._tcp = net.connect( args[1], args[0] );
+	// Connect to server (--connect-host: dial that host instead, on the requested port; the allow-list still
+	// checks the requested host:port)
+	var host = options.connectHost || args[0];
+	mes.info("Requested connection from '%s'%s to '%s'%s [ACCEPTED].", this._from,
+		this._client ? " (client " + this._client + ")" : "", this._to,
+		options.connectHost ? " via " + options.connectHost : "");
+	this._tcp = net.connect( args[1], host );
 
 	// Disable nagle algorithm
 	this._tcp.setTimeout(0)

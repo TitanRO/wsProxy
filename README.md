@@ -32,6 +32,10 @@ wsproxy [-p PORT] [-t THREADS (# of threads to spawn)] [-s ENABLE_SSL] [-k KEY_F
 	* The address is the **last** `X-Forwarded-For` entry (appended by the reverse proxy in front of wsProxy), else the
 	  socket peer. Only enable it when every request reaches wsProxy through such a proxy, and only for targets that
 	  expect PROXY (TitanRO: the Envoy Gateway edge). Also `WSPROXY_PROXY_PROTOCOL=1`.
+* `--connect-host` Dial this host instead of the requested one, on the requested port (also `WSPROXY_CONNECT_HOST`)
+	* The allow-list still checks the requested `host:port`. TitanRO uses it to reach the Envoy Gateway edge through its
+	  in-cluster Service: dialing the edge's public IP from inside the cluster goes through the DO load balancer on some
+	  nodes (which adds a second PROXY header) and straight to Envoy on others.
 * `-t` Number of cpu cores that wsProxy should use
 * `-s` Enable SSL
 	* `-k` Path to ssl key file

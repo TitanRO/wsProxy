@@ -74,6 +74,36 @@ describe('wsProxy --proxy-protocol end to end', function() {
 	});
 });
 
+describe('wsProxy --connect-host', function() {
+	var Server = require('../src/server');
+	var backend, received = Buffer.alloc(0), backendPort, wsPort = 15996;
+
+	before(function(done) {
+		backend = net.createServer(function(sock) {
+			sock.on('data', function(d) { received = Buffer.concat([received, d]); });
+		});
+		backend.listen(0, '127.0.0.1', function() {
+			backendPort = backend.address().port;
+			new Server({ port: wsPort, connectHost: '127.0.0.1' });
+			setTimeout(done, 200);
+		});
+	});
+
+	after(function() { backend.close(); });
+
+	it('dials the connect host on the requested port', function(done) {
+		var ws = new WebSocket('ws://127.0.0.1:' + wsPort + '/game.invalid:' + backendPort);
+		ws.on('open', function() { ws.send(Buffer.from('hi')); });
+		setTimeout(function() {
+			try {
+				assert.strictEqual(received.toString(), 'hi');
+				ws.close();
+				done();
+			} catch (e) { done(e); }
+		}, 400);
+	});
+});
+
 describe('allow module', function() {
 	var allowed = require('../allowed');
 	var allow = require('../src/modules/allow');
