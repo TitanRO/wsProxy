@@ -9,26 +9,38 @@
 
 	"mounts": [ "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind" ],
 
-	// Set *default* container specific settings.json values on container create.
-	"settings": {},
-
-	// Add the IDs of extensions you want installed when the container is created.
-	"extensions": [],
+	"customizations": {
+		"vscode": {
+			// Add the IDs of extensions you want installed when the container is created.
+			"extensions": [
+				"mtxr.sqltools",
+				"mtxr.sqltools-driver-mysql",
+				"eamodio.gitlens",
+				"ms-azuretools.vscode-docker"
+			],
+			// Set *default* container specific settings.json values on container create.
+			"settings": {
+				"files.insertFinalNewline": true
+			}
+		}
+	},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postStartCommand": "doctl auth init --access-token $DO_TOKEN && doctl kubernetes cluster kubeconfig save titanro-nyc1-vpcnative",
+	// "postCreateCommand": {},
+
+	// Use 'postStartCommand' to run commands when the container is started.
+	"postStartCommand": "doctl auth init --access-token $DO_TOKEN",
 
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "devuser",
 
 	"overrideCommand": false,
 
-	"containerEnv": {
-		"DO_TOKEN": "${localEnv:DEVCONTAINER_DO_TOKEN}"
-	},
-
-	"remoteEnv": { "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}" }
+	"remoteEnv": {
+		"DO_TOKEN": "${localEnv:DEVCONTAINER_DO_TOKEN}",
+		"LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
+	}
 }

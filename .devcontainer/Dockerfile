@@ -1,4 +1,6 @@
-FROM ubuntu
+FROM ubuntu:22.04
+# RUN userdel -r ubuntu
+
 ARG USERNAME=devuser
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
@@ -13,17 +15,15 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     sudo \
     gnupg2 \
     lsb-release \
-    && curl -fsSL https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]')/gpg | apt-key add - 2>/dev/null \
-    && echo "deb [arch=amd64] https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list \
+    mariadb-client \
+    && install -m 0755 -d /etc/apt/keyrings \
+    && curl -fsSL https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]')/gpg \
+    | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
+    && chmod a+r /etc/apt/keyrings/docker.gpg \
+    && echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) stable" \
+    | tee /etc/apt/sources.list.d/docker.list \
     && apt-get update \
-    && apt-get install -y docker-ce-cli \
-    && curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg \
-    && echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list \
-    && apt-get update \
-    && apt-get install -y kubectl \
-    && curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - \
-    && apt-get update \
-    && apt-get install -y nodejs
+    && apt-get install -y docker-ce-cli
 
 RUN useradd -s /bin/bash --user-group -m $USERNAME
 RUN echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
@@ -37,10 +37,19 @@ RUN echo "#!/bin/sh\n\
     fi\n\
     exec \"\$@\"" > /usr/local/share/docker-init.sh \
     && chmod +x /usr/local/share/docker-init.sh
-RUN curl -sL https://github.com/digitalocean/doctl/releases/download/v1.63.1/doctl-1.63.1-linux-amd64.tar.gz | tar -xzv && mv doctl /usr/local/bin
+ARG DOCTL_VERSION=2.1.0
+RUN curl -sL "https://github.com/digitalocean/doctl/releases/download/v${DOCTL_VERSION}/doctl-${DOCTL_VERSION}-linux-amd64.tar.gz" \
+    | tar -xzv && mv doctl /usr/local/bin
+
+### Custom changes (root) START
+# Node.js as in the production image (Dockerfile: node:24.22.2-alpine).
+ARG NODE_VERSION=24.22.2
+RUN curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.gz" \
+    | tar -xz -C /usr/local --strip-components=1 --exclude=CHANGELOG.md --exclude=LICENSE --exclude=README.md
+### Custom changes (root) END
 
 USER $USERNAME
-ENV HOME /home/$USERNAME
+ENV HOME=/home/$USERNAME
 
 WORKDIR $HOME
 
@@ -50,3 +59,6 @@ WORKDIR $HOME
 # The script will also execute CMD if you need to alter startup behaviors.
 ENTRYPOINT [ "/usr/local/share/docker-init.sh" ]
 CMD [ "sleep", "infinity" ]
+
+### Custom changes (non-root) START
+### Custom changes (non-root) END
