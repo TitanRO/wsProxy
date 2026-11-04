@@ -28,6 +28,10 @@ wsproxy [-p PORT] [-t THREADS (# of threads to spawn)] [-s ENABLE_SSL] [-k KEY_F
 	wsproxy -a 127.0.0.1:6900,127.0.0.1:6121,127.0.0.1:5121
 	```
 	* Note: Use the same IP's you configured your server address at ROConfig at roBrowser.
+* `--proxy-protocol` Start every TCP connection with a PROXY protocol v2 header carrying the client's address
+	* The address is the **last** `X-Forwarded-For` entry (appended by the reverse proxy in front of wsProxy), else the
+	  socket peer. Only enable it when every request reaches wsProxy through such a proxy, and only for targets that
+	  expect PROXY (TitanRO: the Envoy Gateway edge). Also `WSPROXY_PROXY_PROTOCOL=1`.
 * `-t` Number of cpu cores that wsProxy should use
 * `-s` Enable SSL
 	* `-k` Path to ssl key file

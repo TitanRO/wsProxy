@@ -17,6 +17,7 @@ if(args.h || args.help) {
 	console.log('-s, --ssl enable ssl.');
 	console.log('-k, --key path to ssl key file. [Default: ./default.key]');
 	console.log('-c, --cert path to ssl cert file. [Default: ./default.crt]');
+	console.log('--proxy-protocol start each TCP connection with a PROXY v2 header carrying the client address (last X-Forwarded-For entry, else the peer).');
 	process.exit(0);
 }
 
@@ -28,8 +29,13 @@ modules.load('allow');
 // Parse allowed ip:port option into array
 // Overrides the default allowed.js file
 // TODO: remove this allowed.js file, and write a standard way to handle this allowed_ip option.
+// Fill the shared array in place: the allow module holds its own reference to it (reassigning the variable
+// here used to leave that list empty, i.e. every target was allowed). Entries are trimmed because values
+// passed as one argv token ("-a host:port,...") keep the leading space.
 if(args.a || args.allow) {
-	allowed = (args.a || args.allow).split(',');
+	var list = String(args.a || args.allow).split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+	allowed.length = 0;
+	Array.prototype.push.apply(allowed, list);
 }
 
 
@@ -40,4 +46,5 @@ main({
 	ssl: args.ssl || args.s || false,
 	key: args.key || args.k || "./default.key",
 	cert: args.cert || args.c || "./default.crt",
+	proxyProtocol: !!(args['proxy-protocol'] || process.env.WSPROXY_PROXY_PROTOCOL === '1'),
 });

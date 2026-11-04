@@ -3,15 +3,23 @@
  */
 var net     = require('net');
 var mes     = require('./message');
+var proxyprotocol = require('./proxyprotocol');
 
 /**
  * Constructor
  */
-var Proxy = function Constructor(ws) {
+var Proxy = function Constructor(ws, options) {
+	options = options || {};
 	this._tcp;
 	this._from = ws.upgradeReq.connection.remoteAddress;
 	this._to   = ws.upgradeReq.url.substr(1);
 	this._ws   = ws;
+
+	// --proxy-protocol: send a PROXY v2 header with the player's address first; hold client data until it's out.
+	this._proxyProtocol = !!options.proxyProtocol;
+	this._client  = this._proxyProtocol ? proxyprotocol.clientAddress(ws.upgradeReq) : null;
+	this._ready   = !this._proxyProtocol;
+	this._pending = [];
 
 	// Bind data
 	this._ws.on('message', this.clientData.bind(this) );
@@ -22,7 +30,8 @@ var Proxy = function Constructor(ws) {
 	var args = this._to.split(':');
 
 	// Connect to server
-	mes.info("Requested connection from '%s' to '%s' [ACCEPTED].", this._from, this._to);
+	mes.info("Requested connection from '%s'%s to '%s' [ACCEPTED].", this._from,
+		this._client ? " (client " + this._client + ")" : "", this._to);
 	this._tcp = net.connect( args[1], args[0] );
 
 	// Disable nagle algorithm
@@ -46,6 +55,11 @@ var Proxy = function Constructor(ws) {
 Proxy.prototype.clientData = function OnServerData(data) {
 	if (!this._tcp) {
 		// wth ? Not initialized yet ?
+		return;
+	}
+
+	if (!this._ready) {
+		this._pending.push(data);
 		return;
 	}
 
@@ -103,6 +117,21 @@ Proxy.prototype.close = function OnClose() {
  */
 Proxy.prototype.connectAccept = function OnConnectAccept() {
 	mes.status("Connection accepted from '%s'.", this._to);
+
+	if (this._proxyProtocol) {
+		var src = this._client || proxyprotocol.normalize(this._tcp.localAddress);
+		var dst = proxyprotocol.normalize(this._tcp.remoteAddress);
+		try {
+			this._tcp.write(proxyprotocol.header(src, 0, dst, this._tcp.remotePort));
+			while (this._pending.length) {
+				this._tcp.write(this._pending.shift());
+			}
+		}
+		catch(e) {
+			console.log(e);
+		}
+		this._ready = true;
+	}
 }
 
 /**

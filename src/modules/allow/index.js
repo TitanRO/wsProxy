@@ -19,6 +19,7 @@ function checkAllowed(info, next) {
 	if (allowed_ip.length && allowed_ip.indexOf(target) < 0) {
 		mes.info("Reject requested connection from '%s' to '%s'.", from, target);
 		next(false);
+		return;
 	}
 
 	next(true);

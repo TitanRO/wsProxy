@@ -50,7 +50,9 @@ var Server = function Init(config) {
 
 	var WebSocketServer = new ws.Server(opts)
 
-	WebSocketServer.on('connection', onConnection);
+	WebSocketServer.on('connection', function(ws, req) {
+		onConnection(ws, req, config);
+	});
 
 	return this;
 }
@@ -72,13 +74,13 @@ function onRequestConnect(info, callback) {
 /**
  * Connection passed through verify, lets initiate a proxy
  */
-function onConnection(ws, req) {
+function onConnection(ws, req, config) {
 
 	ws.upgradeReq = req;
 
 	modules.method.connect(ws, function(res) {
 		//All modules have processed the connection, lets start the proxy
-		new Proxy(ws);
+		new Proxy(ws, { proxyProtocol: config.proxyProtocol });
 	})
 
 }
