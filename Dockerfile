@@ -2,7 +2,7 @@
 # Normally built by Tekton Pipelines-as-Code (.tekton/push.yaml) on pushes to master; titanro-ci[bot] pins the digest in
 # TitanRO/sysops argo/prod-season/robrowser and argo/test-season/robrowser, and Argo CD deploys it. The line above is the manual fallback.
 
-FROM node:18-alpine
+FROM node:24.22.2-alpine
 ENV NODE_ENV=production
 
 WORKDIR /app
