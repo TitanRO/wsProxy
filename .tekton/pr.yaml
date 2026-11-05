@@ -1,5 +1,5 @@
 # Pipelines-as-Code: on a pull request to master, build Dockerfile WITHOUT pushing it and scan it with Trivy against the
-# image deployed now (pinned in TitanRO/sysops argo/prod-season/robrowser). The PR check fails on a build error or on a NEW fixable
+# image deployed now (pinned in TitanRO/sysops argo/test-season/robrowser). The PR check fails on a build error or on a NEW fixable
 # HIGH/CRITICAL vulnerability. Same-repo PRs (incl. Renovate) run automatically; fork PRs need /ok-to-test.
 apiVersion: tekton.dev/v1
 kind: PipelineRun
@@ -24,7 +24,7 @@ spec:
     - {name: context, value: .}
     - {name: dockerfile, value: Dockerfile}
     - {name: image-name, value: wsproxy-image}
-    - {name: sysops-path, value: argo/prod-season/robrowser}
+    - {name: sysops-path, value: argo/test-season/robrowser}
   taskRunTemplate:
     serviceAccountName: ci-builder
     podTemplate:
