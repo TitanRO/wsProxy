@@ -38,9 +38,9 @@ wsproxy [-p PORT] [-t THREADS (# of threads to spawn)] [-s ENABLE_SSL] [-k KEY_F
 	  nodes (which adds a second PROXY header) and straight to Envoy on others.
 * `--connect-map` Dial a different `host:port` for specific requested ones (also `WSPROXY_CONNECT_MAP`)
 	* Comma-separated `requested-host:port=dial-host:port` entries, e.g.
-	  `play.titanro.net:6901=login.prod-season.svc.cluster.local:6900`. An entry takes precedence over `--connect-host`;
+	  `test.titanro.net:6903=login.test-season.svc.cluster.local:6900`. An entry takes precedence over `--connect-host`;
 	  the allow-list still checks the requested `host:port`. TitanRO uses it to reach the game servers' Services
-	  directly (with `--proxy-protocol`, the servers trust the pod network) instead of going back through the edge.
+	  directly instead of going back through the edge.
 * `-t` Number of cpu cores that wsProxy should use
 * `-s` Enable SSL
 	* `-k` Path to ssl key file

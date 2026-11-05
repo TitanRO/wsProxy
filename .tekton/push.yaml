@@ -1,5 +1,5 @@
 # Pipelines-as-Code: on a push to master, build ./Dockerfile, push it to DOCR tagged with the commit SHA and pin the
-# digest in TitanRO/sysops argo/prod-season/robrowser argo/test-season/robrowser (commit by titanro-ci[bot]); Argo CD then deploys it automatically.
+# digest in TitanRO/sysops argo/test-season/robrowser (commit by titanro-ci[bot]); Argo CD then deploys it automatically.
 # Runs in namespace ci (Repository for this repo in sysops k8s/tekton-pipelines/pac-repositories.yaml).
 apiVersion: tekton.dev/v1
 kind: PipelineRun
@@ -25,7 +25,7 @@ spec:
     - {name: dockerfile, value: Dockerfile}
     - {name: image, value: registry.digitalocean.com/titanro-nyc/wsproxy}
     - {name: image-name, value: wsproxy-image}
-    - {name: sysops-path, value: "argo/prod-season/robrowser argo/test-season/robrowser"}
+    - {name: sysops-path, value: argo/test-season/robrowser}
   taskRunTemplate:
     serviceAccountName: ci-builder
     podTemplate:
